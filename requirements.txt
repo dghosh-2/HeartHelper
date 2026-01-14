@@ -1,0 +1,16 @@
+# HeartHelper - Heart Disease Prediction ML Project
+# Dependencies for PyTorch neural network training pipeline
+
+# Deep Learning Framework
+torch>=2.0.0
+
+# Data Manipulation
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Machine Learning Utilities (preprocessing, metrics, train/test split)
+scikit-learn>=1.3.0
+
+# Visualization
+matplotlib>=3.7.0
+seaborn>=0.12.0
