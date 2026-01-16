@@ -48,15 +48,19 @@ class HeartDiseaseNet(nn.Module):
         # defining the characteristics of the entire neural network
         # introduce batch normalization to improve learning, stablity
         # introduce droout to prevent overfitting
-        # 
+        # last layer is a single node 
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.dropout(self.relu(self.bn1(self.layer1(x))))
         x = self.dropout(self.relu(self.bn2(self.layer2(x))))
         return self.layer3(x)
+        # forward pass through the 2 hidden layers
+        # return last layer value (single node with logit value to be passed into sigmoid)
+
 
     def predict_proba(self, x: torch.Tensor) -> torch.Tensor:
         return torch.sigmoid(self.forward(x))
+        # sigmoid function to convert last entry into single probability measure
 
 def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
     df_eng = df.copy()
@@ -66,6 +70,9 @@ def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
     df_eng["oldpeak_slope"] = df_eng["oldpeak"] * (df_eng["slope"] + 1)
     df_eng["exercise_risk"] = df_eng["exang"] * (220 - df_eng["age"] - df_eng["thalach"])
     return df_eng
+    # engineer features to improve learning and performance
+    # age-heart rate ratio, cholesterol-age interaction, and exercise risk scores for added complexity
+    # age_thalach_ratio, chol_age, oldpeak_slope, exercise_risk
 
 def preprocess_data(df: pd.DataFrame, scaler: StandardScaler = None, fit_scaler: bool = True):
     df_processed = df.copy()
@@ -90,35 +97,54 @@ def preprocess_data(df: pd.DataFrame, scaler: StandardScaler = None, fit_scaler:
     
     X = X.values.astype(np.float32)
     return X, y, scaler, feature_names
+    # preprocessing data with pandas and sklearn
+    # standardize continuous, one hot encode categorical, binarize binary data
+    # return processed data, target, scaler, and feature names for passing into model
+
+
 
 def train_model():
     np.random.seed(RANDOM_SEED)
     torch.manual_seed(RANDOM_SEED)
+    #set random seeds for reproducability
     
     script_dir = os.path.dirname(os.path.abspath(__file__))
     df = pd.read_csv(os.path.join(script_dir, "..", "heart_cleveland_upload.csv"))
     df = engineer_features(df)
     X, y, scaler, feature_names = preprocess_data(df, fit_scaler=True)
+    # load data, engineer features, preprocess data
     
     n_neg = (y == 0).sum()
     n_pos = (y == 1).sum()
     pos_weight = n_neg / n_pos
+    # calculate positive contitional weight for balancing the dataset
+    # used to weigh the loss function (BCEWithLogitsLoss) such that positive cases have more priority
     
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, stratify=y, random_state=RANDOM_SEED)
     X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.15, stratify=y_train, random_state=RANDOM_SEED)
+    # split data into train, validation, and test sets 
+    # stratify to maintain the same proportion of positive and negative cases in each split
+    # shuffle to randomize the data
     
+
     train_loader = DataLoader(TensorDataset(torch.tensor(X_train), torch.tensor(y_train).unsqueeze(1)), batch_size=16, shuffle=True)
     val_loader = DataLoader(TensorDataset(torch.tensor(X_val), torch.tensor(y_val).unsqueeze(1)), batch_size=16, shuffle=False)
+    # create tensors for training, validation, and test sets
+
     
     model = HeartDiseaseNet(input_dim=X.shape[1]).to(DEVICE)
     criterion = nn.BCEWithLogitsLoss(pos_weight=torch.tensor([pos_weight]).to(DEVICE))
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
     scheduler = StepLR(optimizer, step_size=30, gamma=0.5)
+    # define the model, loss function, optimizer, and scheduler
+    # scheduler to slow the learning rate over time to avoid overshooting towards the end
     
     best_val_recall = 0.0
     patience_counter = 0
     best_state = None
     threshold = 0.4
+    # threshold for converting logit value to probability
+    # in direction of false positives instead of false negatives
     
     for epoch in range(200):
         model.train()
