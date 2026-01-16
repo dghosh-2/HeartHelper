@@ -10,5 +10,12 @@ __pycache__/
 dist/
 build/
 
+# Node
+node_modules/
+frontend/node_modules/
+
 # Cursor rules (project-specific)
 .cursorrules
+
+# Model artifacts
+backend/saved/
