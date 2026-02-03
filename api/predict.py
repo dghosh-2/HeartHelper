@@ -7,7 +7,6 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler
 import pickle
 import os
-import base64
 
 DEVICE = torch.device("cpu")
 

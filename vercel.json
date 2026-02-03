@@ -4,8 +4,8 @@
   "framework": null,
   "functions": {
     "api/*.py": {
-      "runtime": "@vercel/python@4.0.0",
-      "maxDuration": 30
+      "runtime": "@vercel/python@3.1.1",
+      "maxDuration": 60
     }
   },
   "rewrites": [
