@@ -65,10 +65,8 @@ function App() {
   const [loading, setLoading] = useState(false)
   const [showInfo, setShowInfo] = useState(false)
 
-  const API_BASE = import.meta.env.DEV ? 'http://localhost:5001' : ''
-
   useEffect(() => {
-    fetch(`${API_BASE}/api/model-info`)
+    fetch('http://localhost:5001/api/model-info')
       .then(res => res.json())
       .then(data => setModelInfo(data))
       .catch(() => {})
@@ -78,7 +76,7 @@ function App() {
     e.preventDefault()
     setLoading(true)
     try {
-      const res = await fetch(`${API_BASE}/api/predict`, {
+      const res = await fetch('http://localhost:5001/api/predict', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
@@ -237,11 +235,11 @@ function App() {
                   <option value={2}>Reversible Defect</option>
                 </select>
               </div>
-            </div>
+      </div>
 
             <button type="submit" className="submit-btn" disabled={loading}>
               {loading ? 'Analyzing...' : 'Analyze Risk'}
-            </button>
+        </button>
           </form>
         </section>
 
@@ -276,8 +274,8 @@ function App() {
                 </p>
                 <p className="threshold-note">
                   Threshold: 40% (optimized for sensitivity)
-                </p>
-              </div>
+        </p>
+      </div>
             </div>
           </section>
         )}
