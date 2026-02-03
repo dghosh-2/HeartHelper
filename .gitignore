@@ -22,3 +22,4 @@ backend/saved/
 
 # Vercel
 .vercel
+.env*.local
