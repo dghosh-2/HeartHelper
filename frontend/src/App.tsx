@@ -65,8 +65,10 @@ function App() {
   const [loading, setLoading] = useState(false)
   const [showInfo, setShowInfo] = useState(false)
 
+  const API_BASE = import.meta.env.DEV ? 'http://localhost:5001' : ''
+
   useEffect(() => {
-    fetch('http://localhost:5001/api/model-info')
+    fetch(`${API_BASE}/api/model-info`)
       .then(res => res.json())
       .then(data => setModelInfo(data))
       .catch(() => {})
@@ -76,7 +78,7 @@ function App() {
     e.preventDefault()
     setLoading(true)
     try {
-      const res = await fetch('http://localhost:5001/api/predict', {
+      const res = await fetch(`${API_BASE}/api/predict`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)

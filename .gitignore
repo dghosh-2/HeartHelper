@@ -17,5 +17,8 @@ frontend/node_modules/
 # Cursor rules (project-specific)
 .cursorrules
 
-# Model artifacts
+# Model artifacts (keep api/saved for Vercel deployment)
 backend/saved/
+
+# Vercel
+.vercel

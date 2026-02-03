@@ -154,6 +154,8 @@ def train_model():
             loss = criterion(model(X_batch), y_batch)
             loss.backward()
             optimizer.step()
+        # core training flow 
+        # load batches to device, zero gradients, compute loss, backpropagate, update weights
         
         model.eval()
         val_tp, val_pos = 0, 0
@@ -167,6 +169,12 @@ def train_model():
         val_recall = val_tp / val_pos if val_pos > 0 else 0
         scheduler.step()
         
+
+        
+        # validatoin recall, ratio of true positives to all positives
+        # step elarning rate scheduler
+
+
         if val_recall > best_val_recall:
             best_val_recall = val_recall
             patience_counter = 0
@@ -175,9 +183,15 @@ def train_model():
             patience_counter += 1
             if patience_counter >= 25:
                 break
+
+        # early stopping to prevent overfitting
     
+    # finished training loop
+
     if best_state:
         model.load_state_dict(best_state)
+
+    # load best model for optimizaiton and evaluation
     
     os.makedirs(os.path.join(script_dir, "saved"), exist_ok=True)
     torch.save(model.state_dict(), os.path.join(script_dir, "saved", "model.pth"))
@@ -187,6 +201,8 @@ def train_model():
         pickle.dump(feature_names, f)
     
     return model, scaler, feature_names
+
+    # save model for later/application usage
 
 def load_model():
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -205,6 +221,8 @@ def load_model():
     model.eval()
     
     return model, scaler, feature_names
+
+    #load model for application usage
 
 def predict(input_data: dict, model, scaler, feature_names):
     df = pd.DataFrame([input_data])
@@ -227,6 +245,8 @@ def predict(input_data: dict, model, scaler, feature_names):
         prob = model.predict_proba(X).item()
     
     return {"probability": prob, "prediction": int(prob >= 0.4)}
+
+    # take in app input data, engineer featues, pass into model, return probability
 
 if __name__ == "__main__":
     train_model()
